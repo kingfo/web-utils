@@ -2,6 +2,7 @@ package webutils.localconn {
 	import flash.events.SecurityErrorEvent;
 	import flash.events.StatusEvent;
 	import flash.net.LocalConnection;
+	import org.flashdevelop.utils.FlashConnect;
 	/**
 	 * ...
 	 * @author KingFo (telds kingfo)
@@ -11,49 +12,15 @@ package webutils.localconn {
 		/**
 		 * 构造函数
 		 * @param	host				运行的文档环境，该环境下必需存在 onError 和 onStatus 方法
-		 * 									onError(type,errorID,errorMessage);
-		 * 									onStatus(type,StatusOrError);
+		 * 									onError(e:SecurityErrorEvent):void;
+		 * 									onStatus(e:StatusEvent):void;
 		 * @param	name				发送或接收通道，不指定则默认使用 “unknown”。
-		 * @param	isReceiver			在发送器或接收器二选一，可以通过 asSender 或 asReceiver 进行运行时热切换
 		 */
-		public function LocalConn(host:*, name:String = null, isReceiver:Boolean = true) {
+		public function LocalConn(host:*) {
 			this.host = host;
-			setName(name);
-			isReceiver ? asReceiver(): asSender();
-		}
-		
-		/**
-		 * 作为发送器运行
-		 * @return
-		 */
-		public function asSender():Boolean {
-			closeConn();
-			addConnListener();
-			receivable = false;
-			return true;
-		}
-		
-		/**
-		 * 作为接收器运行
-		 * @param	name
-		 * @return
-		 */
-		public function asReceiver(name:String = null):Boolean {
-			setName(name);
-			removeConnListener();
-			closeConn();
-			localconn.allowInsecureDomain('*');
-			localconn.client = host;
-			receivable = true;
-			return connectConn();
-		}
-		
-		/**
-		 * 指示当前工作方式
-		 * @return
-		 */
-		public function getReceivable():Boolean {
-			return receivable;
+			this.name = "_" + Math.random().toString().replace(/\./,'');
+			initReceiver();
+			initSender();
 		}
 		
 		/**
@@ -63,53 +30,41 @@ package webutils.localconn {
 		 * @return
 		 */
 		public function send(msg:*, name:String = null):Boolean {
-			if (receivable) return false;
-			setName(name);
 			//XXX: 在消息频繁发送时会存在内存，通过队列进行管理可以有效防止
-			localconn.send(this.name, 'recv', msg);
+			FlashConnect.atrace('send',msg, name);
+			sender.send(name, 'recv', msg);
 			return true;
 		}
 		
-		private function connectConn():Boolean {
+		public function getName():String {
+			return this.name;
+		}
+		
+		private function initSender():void {
+			FlashConnect.atrace('initSender');
+			sender.addEventListener(StatusEvent.STATUS, host.onStatus);
+			sender.addEventListener(SecurityErrorEvent.SECURITY_ERROR, host.onError);
+		}
+		
+		
+		private function initReceiver():void {
+			FlashConnect.atrace('initReceiver');
+			receiver.allowDomain('*');
+			receiver.allowInsecureDomain('*');
+			receiver.client = host;
 			try {
-                localconn.connect(name);
-				return true;
+                receiver.connect(name);
+				FlashConnect.atrace(name,'connected!');
             } catch (error:ArgumentError) {
-                trace("Can't connect...the connection name is already being used by another SWF");
+                FlashConnect.atrace("Can't connect...the connection name is already being used by another SWF");
             }
-			return false;
-		}
-		
-		private function closeConn():void {
-			if (localconn) {
-				try {
-					localconn.close();
-				}catch(e:Error){}
-			}
-		}
-		
-		private function setName(name:String = null):void {
-			if (name) {
-				this.name = encodeURIComponent(name);
-			}
-		}
-		
-		private function addConnListener():void {
-			localconn.addEventListener(StatusEvent.STATUS, host.onStatus);
-			localconn.addEventListener(SecurityErrorEvent.SECURITY_ERROR, host.onError);
-		}
-		
-		private function removeConnListener():void {
-			localconn.removeEventListener(StatusEvent.STATUS, host.onStatus);
-			localconn.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, host.onError);
 		}
 		
 		
-		
-		private var name:String = 'unknown';
+		private var name:String;
 		private var host:*;
-		private var receivable:Boolean = true;
-		private var localconn:LocalConnection = new LocalConnection();
+		private var sender:LocalConnection = new LocalConnection();
+		private var receiver:LocalConnection = new LocalConnection();
 		
 	}
 

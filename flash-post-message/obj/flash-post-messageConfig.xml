@@ -27,7 +27,7 @@
   <file-specs>
     <path-element>D:\work\data\Lab\WebUtils\web-utils\flash-post-message\src\Main.as</path-element>
   </file-specs>
-  <default-background-color>#FFFFFF</default-background-color>
+  <default-background-color>#8000FF</default-background-color>
   <default-frame-rate>30</default-frame-rate>
   <default-size>
     <width>800</width>

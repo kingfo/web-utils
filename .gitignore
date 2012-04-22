@@ -1,0 +1,11 @@
+*.iml
+.idea/
+obj/
+*~
+*.diff
+*.patch
+*.bak
+.DS_Store
+Thumb.db
+*.as3proj
+*.orig

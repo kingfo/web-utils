@@ -1,6 +1,7 @@
 package trinity.external {
 	import as3utils.string.isEmptyString;
 	import flash.external.ExternalInterface;
+	import org.flashdevelop.utils.FlashConnect;
 	import trinity.utils.getObjectValue;
 	/**
 	 * ...
@@ -43,7 +44,7 @@ package trinity.external {
 				try {
 					ExternalInterface.addCallback(name, closure);
 				}catch (e:Error) {
-					
+					FlashConnect.atrace('_addCallback Error', e.message);
 				}
 			}
 			
@@ -53,9 +54,10 @@ package trinity.external {
 		static public function callJS(msg:*):void {
 			if (!entry || !id || !ExternalInterface.available) return;
 			try {
-				ExternalInterface.call(entry, id, msg);
+				FlashConnect.atrace('callJS', entry,id,msg);
+				ExternalInterface.call(entry, id, msg,msg.type);
 			}catch (e:Error) {
-				
+				FlashConnect.atrace('CallJS Error', e.message);
 			}
 		}
 		

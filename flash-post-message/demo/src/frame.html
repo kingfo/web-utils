@@ -1,0 +1,102 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta charset="utf-8"/>
+    <script src="../../third-party/swfobject_2_2/swfobject/src/swfobject.js"></script>
+</head>
+<body>
+<div>
+    <textarea id='output'  rows="30" cols="50"></textarea>
+</div>
+<div id="myAlternativeContent">
+    <a href="http://www.adobe.com/go/getflashplayer">
+        <img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif"
+             alt="Get Adobe Flash player"/>
+    </a>
+</div>
+<script>
+
+    (function(doc, win) {
+        var output = doc.getElementById('output'),
+                flashvars = {},params = {},attrs = {},
+                flashID = 'flash',
+                flashCallbackName = 'flashCallback',
+                flash,intervalId;
+
+        flashvars.jsentry = flashCallbackName;
+        flashvars.swfid = flashID;
+
+        params.allowscriptaccess = "always";
+        params.allownetworking = "all";
+
+        attrs.id = flashID;
+
+        function swfObjectCallback(e) {
+            printl('SWFObject:the creation of a Flash plugin-in <object> DOM was successful', e.success);
+            printl('SWFObject:the HTML object element ID ', e.id);
+            printl('SWFObject:HTML object element reference ', e.ref);
+            flash = e.ref;
+        }
+
+        function flashCallback(id, e) {
+            printl('Flash: my id', id);
+            printl('Flash: my msg', e);
+            printl('Flash: my msg type', e.type);
+            switch (e.type) {
+                case 'swfReady':
+                    printl('Flash: local connction name:', flash.getName());
+                    printl('sending...')
+
+
+                    //XXX: 需要通过循环获取 特定的 window.name 进行判断是否可以通讯
+
+                    intervalId = setInterval(function() {
+                        if (new RegExp(/^_/).test(win.name)) {
+                            printl('DOM: window name', win.name);
+                            flash.send({from:flash.getName(),data:'Hello parent!'}, win.name);
+                        }
+                        clearInterval(intervalId);
+                    }, 100);
+
+
+                    break;
+                case 'status':
+                    printl('Flash: send message was successful!');
+                    break;
+                case 'error':
+                    printl('Flash: send message was failure!');
+                    // flash.send({from:'iframe',data:'Hello world!'},win.name);
+                    break;
+                case 'message':
+                    printl('Flash: got a message:', e.msg);
+                    printl('Flash: got a message with custom property of "data":', e.msg.data);
+                    printl('Flash: got a message with custom property of "from"', e.msg.from);
+                    break;
+            }
+        }
+
+        function printl() {
+            var args = arguments,
+                    i,
+                    len = args.length,
+                    arr = [],
+                    msg;
+            for (i = 0; i < len; i++) {
+                arr.push(args[i]);
+            }
+            msg = arr.join('--->');
+            output.value += msg + '\n\n';
+        }
+
+        win.flashCallback = flashCallback;
+
+        swfobject.embedSWF("../../build/flash-post-message.swf",
+                "myAlternativeContent",
+                "10", "10", "9.0.0", false,
+                flashvars, params, attrs,
+                swfObjectCallback);
+    })(document, window);
+</script>
+</body>
+</html>
