@@ -15,6 +15,11 @@
              alt="Get Adobe Flash player"/>
     </a>
 </div>
+
+<div>
+    <input id='input' type="value">
+    <button type="button" onclick="sendMsg();">发送消息</button>
+</div>
 <script>
 
     (function(doc, win) {
@@ -86,10 +91,28 @@
                 arr.push(args[i]);
             }
             msg = arr.join('--->');
-            output.value += msg + '\n\n';
+            output.value = '[' + currntTime() + ']' +
+                    msg + '\n\n' + output.value;
+        }
+
+         function currntTime() {
+            var arr = [],date = new Date();
+            arr.push(date.getHours());
+            arr.push(date.getMinutes());
+            arr.push(date.getSeconds());
+            arr.push(date.getMilliseconds());
+            return arr.join(':');
+        }
+
+         function sendMsg() {
+            var msg = doc.getElementById('input').value;
+            if (!msg.length)return;
+            printl('send message by user action');
+             flash.send({from:flash.getName(),data:msg}, win.name);
         }
 
         win.flashCallback = flashCallback;
+        win.sendMsg = sendMsg;
 
         swfobject.embedSWF("../../build/flash-post-message.swf",
                 "myAlternativeContent",

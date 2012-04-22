@@ -10,7 +10,7 @@
             top: 0;
             right: 10px;
             width: 400px;
-            height: 500px;
+            height: 800px;
         }
     </style>
 </head>
@@ -26,13 +26,20 @@
     </a>
 </div>
 
-<iframe id='frame' class="frame" src="frame.html" frameborder="0"></iframe>
+<iframe id='frame' class="frame" scrolling='no' src="frame.html" frameborder="0"></iframe>
+
+<div>
+    <input id='input' type="value">
+    <button type="button" onclick="sendMsg();">发送消息</button>
+</div>
 
 <script>
+
 
     (function(doc, win) {
         var output = doc.getElementById('output'),
                 frame = doc.getElementById('frame'),
+                frameId,
                 flashvars = {},params = {},attrs = {},
                 flashID = 'flash',
                 flashCallbackName = 'flashCallback',
@@ -79,10 +86,10 @@
                     printl('Flash: got a message with custom property of "data":', e.msg.data);
                     printl('Flash: got a message with custom property of "from"', e.msg.from);
 
-//                    setTimeout(function() {
-                        printl('DOM: window name', win.name);
-                        flash.send({from:flash.getName(),data:'Hello iframe!'}, e.msg.from);
-//                    }, 1000);
+                    printl('DOM: window name', win.name);
+                    flash.send({from:flash.getName(),data:'Hello iframe!'}, e.msg.from);
+
+                    frameId = e.msg.from;
 
                     break;
             }
@@ -98,10 +105,28 @@
                 arr.push(args[i]);
             }
             msg = arr.join('--->');
-            output.value += msg + '\n\n';
+            output.value = '[' + currntTime() + ']' +
+                    msg + '\n\n' + output.value;
+        }
+
+        function sendMsg() {
+            var msg = doc.getElementById('input').value;
+            if (!msg.length || !frameId)return;
+            printl('send message by user action');
+            flash.send({from:flash.getName(),data:msg}, frameId)
+        }
+
+        function currntTime() {
+            var arr = [],date = new Date();
+            arr.push(date.getHours());
+            arr.push(date.getMinutes());
+            arr.push(date.getSeconds());
+            arr.push(date.getMilliseconds());
+            return arr.join(':');
         }
 
         win.flashCallback = flashCallback;
+        win.sendMsg = sendMsg;
 
         swfobject.embedSWF("../../build/flash-post-message.swf",
                 "myAlternativeContent",
