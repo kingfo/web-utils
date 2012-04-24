@@ -29,7 +29,7 @@ package  {
 			AJBridgeLite.deploy(flashvars);
 			
 			var name:String = getObjectValue(flashvars, 'name');
-			
+			FlashConnect.atrace("MY NAME IS:", name);
 			var conn:LocalConn = new LocalConn(this,name);
 			
 			AJBridgeLite.addCallback(

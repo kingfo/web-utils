@@ -47,7 +47,10 @@ package webutils.localconn {
 		}
 		
 		private function setName(name:String):void {
-			if (name && name.length > 0) return;
+			if (name && name.length > 0) {
+				this.name = name;
+				return;
+			}
 			this.name = "_" + Math.random().toString().replace(/\./,'');
 		}
 		
