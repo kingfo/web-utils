@@ -28,7 +28,9 @@ package  {
 			
 			AJBridgeLite.deploy(flashvars);
 			
-			var conn:LocalConn = new LocalConn(this);
+			var name:String = getObjectValue(flashvars, 'name');
+			
+			var conn:LocalConn = new LocalConn(this,name);
 			
 			AJBridgeLite.addCallback(
 										'send',						conn.send,

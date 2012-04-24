@@ -16,9 +16,9 @@ package webutils.localconn {
 		 * 									onStatus(e:StatusEvent):void;
 		 * @param	name				发送或接收通道，不指定则默认使用 “unknown”。
 		 */
-		public function LocalConn(host:*) {
+		public function LocalConn(host:*,name:String = null) {
 			this.host = host;
-			this.name = "_" + Math.random().toString().replace(/\./,'');
+			setName(name);
 			initReceiver();
 			initSender();
 		}
@@ -44,6 +44,11 @@ package webutils.localconn {
 			FlashConnect.atrace('initSender');
 			sender.addEventListener(StatusEvent.STATUS, host.onStatus);
 			sender.addEventListener(SecurityErrorEvent.SECURITY_ERROR, host.onError);
+		}
+		
+		private function setName(name:String):void {
+			if (name && name.length > 0) return;
+			this.name = "_" + Math.random().toString().replace(/\./,'');
 		}
 		
 		
