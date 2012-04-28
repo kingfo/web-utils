@@ -55,7 +55,6 @@
 
         attrs.id = flashID;
 
-        printl('DOM:the name of content window', frame.contentWindow.name);
 
         function swfObjectCallback(e) {
             printl('SWFObject:the creation of a Flash plugin-in <object> DOM was successful', e.success);
@@ -72,8 +71,6 @@
                 case 'swfReady':
                     printl('Flash: local connction name:', flash.getName());
                     groupName = flash.getName();
-                    frame.contentWindow.name = groupName;
-                    printl('DOM:the name of content window now', frame.contentWindow.name);
                     break;
                 case 'status':
                     printl('Flash: send message was successful!');

@@ -7,7 +7,7 @@
 </head>
 <body>
 <div>
-    <textarea id='output'  rows="30" cols="50"></textarea>
+    <textarea id='output' rows="30" cols="50"></textarea>
 </div>
 <div id="myAlternativeContent">
     <a href="http://www.adobe.com/go/getflashplayer">
@@ -27,6 +27,7 @@
                 flashvars = {},params = {},attrs = {},
                 flashID = 'flash',
                 flashCallbackName = 'flashCallback',
+                bossName = '_IMTheBoss',
                 flash,intervalId;
 
         flashvars.jsentry = flashCallbackName;
@@ -54,15 +55,8 @@
                     printl('sending...')
 
 
-                    //XXX: 需要通过循环获取 特定的 window.name 进行判断是否可以通讯
 
-                    intervalId = setInterval(function() {
-                        if (new RegExp(/^_/).test(win.name)) {
-                            printl('DOM: window name', win.name);
-                            flash.send({from:flash.getName(),data:'Hello parent!'}, win.name);
-                        }
-                        clearInterval(intervalId);
-                    }, 100);
+                    flash.send({from:flash.getName(),data:'Hello parent!'}, bossName);
 
 
                     break;
@@ -71,7 +65,6 @@
                     break;
                 case 'error':
                     printl('Flash: send message was failure!');
-                    // flash.send({from:'iframe',data:'Hello world!'},win.name);
                     break;
                 case 'message':
                     printl('Flash: got a message:', e.msg);
@@ -95,7 +88,7 @@
                     msg + '\n\n' + output.value;
         }
 
-         function currntTime() {
+        function currntTime() {
             var arr = [],date = new Date();
             arr.push(date.getHours());
             arr.push(date.getMinutes());
@@ -104,11 +97,11 @@
             return arr.join(':');
         }
 
-         function sendMsg() {
+        function sendMsg() {
             var msg = doc.getElementById('input').value;
             if (!msg.length)return;
             printl('send message by user action');
-             flash.send({from:flash.getName(),data:msg}, win.name);
+            flash.send({from:flash.getName(),data:msg}, bossName);
         }
 
         win.flashCallback = flashCallback;
